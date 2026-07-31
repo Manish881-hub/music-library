@@ -3,6 +3,7 @@ package com.ledger.music_library.service;
 import com.ledger.music_library.dto.AlbumDto;
 import com.ledger.music_library.entity.Album;
 import com.ledger.music_library.entity.User;
+import com.ledger.music_library.exception.ConflictError;
 import com.ledger.music_library.exception.ForbiddenError;
 import com.ledger.music_library.exception.NotFoundError;
 import com.ledger.music_library.repository.AlbumRepository;
@@ -31,6 +32,10 @@ public class AlbumService {
     @Transactional
     public AlbumDto addAlbum(AlbumDto albumDto, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
+
+        if (albumRepository.existsByUserIdAndAppleCatalogId(user.getId(), albumDto.getAppleCatalogId())) {
+            throw new ConflictError("Album already in your library");
+        }
 
         Album album = new Album();
         album.setAppleCatalogId(albumDto.getAppleCatalogId());

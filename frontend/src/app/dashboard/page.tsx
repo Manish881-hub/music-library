@@ -44,30 +44,49 @@ interface Insights {
   averageRating: number;
   ratingDistribution: Record<string, number>;
   releaseDecades: Record<string, number>;
+  releaseYears: Record<string, number>;
   albumsAddedByMonth: Record<string, number>;
   summary: string;
 }
 
 const ACCENT = "#d97757";
 const PALETTE = ["#d97757", "#6a9bcc", "#788c5d", "#b58a5a", "#8a6ba8", "#c96f6f"];
-const MONTH_ORDER = [
-  "january", "february", "march", "april", "may", "june",
-  "july", "august", "september", "october", "november", "december",
-];
 
-function cumulativeSeries(byMonth: Record<string, number>): number[] {
-  const total = Object.values(byMonth).reduce((sum, n) => sum + n, 0);
-  if (Object.keys(byMonth).length <= 1) return [0, total];
-  let running = 0;
-  return MONTH_ORDER.filter((m) => m in byMonth).map(
-    (m) => (running += byMonth[m])
-  );
+function monthRange(keys: string[]): string[] {
+  const [sy, sm] = keys[0].split("-").map(Number);
+  const [ey, em] = keys[keys.length - 1].split("-").map(Number);
+  const months: string[] = [];
+  let y = sy;
+  let m = sm;
+  while (y < ey || (y === ey && m <= em)) {
+    months.push(`${y}-${String(m).padStart(2, "0")}`);
+    m += 1;
+    if (m > 12) {
+      m = 1;
+      y += 1;
+    }
+  }
+  return months;
 }
 
-function monthsWithData(byMonth: Record<string, number>): string[] {
-  const keys = Object.keys(byMonth);
-  if (keys.length <= 1) return ["Start", "Now"];
-  return MONTH_ORDER.filter((m) => m in byMonth).map((m) => m.slice(0, 3));
+function cumulativeSeries(byMonth: Record<string, number>): {
+  labels: string[];
+  data: number[];
+} {
+  const keys = Object.keys(byMonth).sort();
+  const total = Object.values(byMonth).reduce((sum, n) => sum + n, 0);
+  if (keys.length <= 1) return { labels: ["Start", "Now"], data: [0, total] };
+  const range = monthRange(keys);
+  let running = 0;
+  const data = range.map((k) => (running += byMonth[k] ?? 0));
+  const labels = range.map((k) => {
+    const [y, m] = k.split("-").map(Number);
+    return new Date(y, m - 1, 1).toLocaleDateString("en-US", {
+      month: "short",
+      year: "2-digit",
+    });
+  });
+  return { labels, data };
 }
 
 function StatTile({
@@ -99,7 +118,7 @@ function ChartCard({
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">
         {title}
       </h2>
-      {children}
+      <div className="h-72">{children}</div>
     </section>
   );
 }
@@ -175,6 +194,7 @@ export default function DashboardPage() {
   const decadeEntries = insights
     ? Object.entries(insights.releaseDecades)
     : [];
+  const yearEntries = insights ? Object.entries(insights.releaseYears) : [];
 
   const genreData = {
     labels: genreEntries.map(([g]) => g),
@@ -214,12 +234,16 @@ export default function DashboardPage() {
     ],
   };
 
+  const timeline = insights
+    ? cumulativeSeries(insights.albumsAddedByMonth)
+    : { labels: [], data: [] };
+
   const timelineData = {
-    labels: insights ? monthsWithData(insights.albumsAddedByMonth) : [],
+    labels: timeline.labels,
     datasets: [
       {
         label: "Total albums",
-        data: insights ? cumulativeSeries(insights.albumsAddedByMonth) : [],
+        data: timeline.data,
         borderColor: ACCENT,
         backgroundColor: "rgba(217, 119, 87, 0.15)",
         fill: true,
@@ -237,6 +261,19 @@ export default function DashboardPage() {
         label: "Albums",
         data: decadeEntries.map(([, n]) => n),
         backgroundColor: PALETTE,
+        borderRadius: 6,
+        maxBarThickness: 48,
+      },
+    ],
+  };
+
+  const yearData = {
+    labels: yearEntries.map(([y]) => y),
+    datasets: [
+      {
+        label: "Albums",
+        data: yearEntries.map(([, n]) => n),
+        backgroundColor: ACCENT,
         borderRadius: 6,
         maxBarThickness: 48,
       },
@@ -386,6 +423,17 @@ export default function DashboardPage() {
               <ChartCard title="Releases by decade">
                 <Bar
                   data={decadeData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                  }}
+                />
+              </ChartCard>
+              <ChartCard title="Releases by year">
+                <Bar
+                  data={yearData}
                   options={{
                     responsive: true,
                     maintainAspectRatio: false,

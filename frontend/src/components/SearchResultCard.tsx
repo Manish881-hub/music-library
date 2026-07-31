@@ -114,7 +114,7 @@ export function useSaveToLibrary(savedIds: Set<number>) {
         title: result.collectionName,
         artistName: result.artistName,
         genre: result.primaryGenreName ?? null,
-        releaseDate: result.releaseDate ?? null,
+        releaseDate: result.releaseDate ? result.releaseDate.slice(0, 10) : null,
         trackCount: result.trackCount ?? null,
         artworkUrl: result.artworkUrl100 ?? null,
         userRating: null,
@@ -122,15 +122,20 @@ export function useSaveToLibrary(savedIds: Set<number>) {
       });
       setSaved((prev) => new Set(prev).add(result.collectionId));
     } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? `Could not save: ${err.message}`
-          : "Could not save that album."
-      );
+      if (err instanceof ApiError && err.status === 409) {
+        setSaved((prev) => new Set(prev).add(result.collectionId));
+        setError("That album is already in your library.");
+      } else {
+        setError(
+          err instanceof ApiError
+            ? `Could not save: ${err.message}`
+            : "Could not save that album."
+        );
+      }
     } finally {
       setSavingId(null);
     }
   }
 
-  return { saved, savingId, error, save };
+  return { saved, savingId, error, save, setSaved };
 }

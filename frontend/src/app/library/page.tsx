@@ -120,6 +120,13 @@ function EditModal({
     setError(null);
     try {
       const updated = await api.updateAlbum(album.id, {
+        appleCatalogId: album.appleCatalogId,
+        title: album.title,
+        artistName: album.artistName,
+        genre: album.genre,
+        releaseDate: album.releaseDate,
+        trackCount: album.trackCount,
+        artworkUrl: album.artworkUrl,
         userRating: rating || null,
         userNotes: notes.trim() || null,
       });

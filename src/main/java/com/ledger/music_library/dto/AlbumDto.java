@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class AlbumDto {
@@ -38,6 +39,6 @@ public class AlbumDto {
     @Size(max = 2000, message = "userNotes must be at most 2000 characters")
     private String userNotes;
 
-    private LocalDate createdAt;
-    private LocalDate updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

@@ -22,7 +22,24 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const { saved, savingId, error: saveError, save } = useSaveToLibrary(new Set());
+  const { saved, savingId, error: saveError, save, setSaved } =
+    useSaveToLibrary(new Set());
+
+  useEffect(() => {
+    let active = true;
+    api
+      .getLibrary()
+      .then((library) => {
+        if (active) {
+          setSaved(new Set(library.map((a) => Number(a.appleCatalogId))));
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const runSearch = useCallback(async (query: string) => {
     abortRef.current?.abort();

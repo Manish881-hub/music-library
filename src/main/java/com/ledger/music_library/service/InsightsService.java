@@ -71,10 +71,21 @@ public class InsightsService {
                         Collectors.counting()));
         stats.put("releaseDecades", decadeCounts);
 
-        Map<String, Long> albumsByMonth = albums.stream()
+        Map<Integer, Long> yearCounts = albums.stream()
+                .filter(a -> a.getReleaseDate() != null)
                 .collect(Collectors.groupingBy(
-                        a -> a.getCreatedAt() != null ? a.getCreatedAt().getMonth().name().toLowerCase() : "unknown",
-                        LinkedHashMap::new,
+                        a -> a.getReleaseDate().getYear(),
+                        TreeMap::new,
+                        Collectors.counting()));
+        stats.put("releaseYears", yearCounts);
+
+        Map<String, Long> albumsByMonth = albums.stream()
+                .filter(a -> a.getCreatedAt() != null)
+                .collect(Collectors.groupingBy(
+                        a -> String.format("%04d-%02d",
+                                a.getCreatedAt().getYear(),
+                                a.getCreatedAt().getMonthValue()),
+                        TreeMap::new,
                         Collectors.counting()));
         stats.put("albumsAddedByMonth", albumsByMonth);
 
@@ -118,8 +129,13 @@ public class InsightsService {
 
         Map<String, Long> decades = castMap(stats.get("releaseDecades"));
         if (!decades.isEmpty()) {
-            String topDecade = decades.keySet().iterator().next();
-            sb.append(" Most of your picks were released in the ").append(topDecade).append('.');
+            String topDecade = decades.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse(null);
+            if (topDecade != null) {
+                sb.append(" Most of your picks were released in the ").append(topDecade).append('.');
+            }
         }
 
         return sb.toString();

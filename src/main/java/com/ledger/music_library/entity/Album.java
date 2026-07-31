@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "albums", uniqueConstraints = {
@@ -46,10 +47,10 @@ public class Album {
     private String userNotes;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -57,12 +58,12 @@ public class Album {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDate.now();
-        updatedAt = LocalDate.now();
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDate.now();
+        updatedAt = LocalDateTime.now();
     }
 }

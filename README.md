@@ -84,7 +84,7 @@ Environment variables (optional — defaults shown):
 DB_URL=jdbc:postgresql://localhost:5432/music_library
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
-JWT_SECRET=<any long secret>
+JWT_SECRET=<base64-encoded 32+ byte secret, e.g. `openssl rand -base64 48`>
 JWT_EXPIRATION=86400000
 ALLOWED_ORIGINS=http://localhost:3000
 ```

@@ -1,5 +1,6 @@
 package com.ledger.music_library.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) ->
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication required")))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/api/search/**", "/actuator/health", "/actuator/info").permitAll()
                 .anyRequest().authenticated()

@@ -65,11 +65,14 @@ public class GlobalExceptionHandler {
     }
 
     private Map<String, Object> errorBody(String code, int status, String detail, Object fields) {
-        return Map.of(
-                "error", code,
-                "status", status,
-                "detail", detail,
-                "timestamp", Instant.now().toString()
-        );
+        Map<String, Object> body = new java.util.HashMap<>();
+        body.put("error", code);
+        body.put("status", status);
+        body.put("detail", detail);
+        body.put("timestamp", Instant.now().toString());
+        if (fields != null) {
+            body.put("errors", fields);
+        }
+        return body;
     }
 }

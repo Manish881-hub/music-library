@@ -98,7 +98,7 @@ export const api = {
       body: JSON.stringify(album),
     }),
 
-  updateAlbum: (id: number, album: Partial<AlbumInput>) =>
+  updateAlbum: (id: number, album: AlbumInput) =>
     request<Album>(`/library/${id}`, {
       method: "PUT",
       body: JSON.stringify(album),
