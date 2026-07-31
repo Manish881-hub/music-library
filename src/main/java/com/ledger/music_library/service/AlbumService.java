@@ -3,6 +3,8 @@ package com.ledger.music_library.service;
 import com.ledger.music_library.dto.AlbumDto;
 import com.ledger.music_library.entity.Album;
 import com.ledger.music_library.entity.User;
+import com.ledger.music_library.exception.ForbiddenError;
+import com.ledger.music_library.exception.NotFoundError;
 import com.ledger.music_library.repository.AlbumRepository;
 import com.ledger.music_library.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,10 +52,10 @@ public class AlbumService {
     public AlbumDto updateAlbum(Long id, AlbumDto albumDto, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
         Album album = albumRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Album not found with id: " + id));
+                .orElseThrow(() -> new NotFoundError("Album", String.valueOf(id)));
 
         if (!album.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Access denied");
+            throw new ForbiddenError("Access denied");
         }
 
         album.setUserRating(albumDto.getUserRating());
@@ -73,10 +75,10 @@ public class AlbumService {
     public void deleteAlbum(Long id, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
         Album album = albumRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Album not found with id: " + id));
+                .orElseThrow(() -> new NotFoundError("Album", String.valueOf(id)));
 
         if (!album.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Access denied");
+            throw new ForbiddenError("Access denied");
         }
 
         albumRepository.delete(album);
@@ -85,7 +87,7 @@ public class AlbumService {
     private User getAuthenticatedUser(Authentication authentication) {
         String email = authentication.getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundError("User", email));
     }
 
     private AlbumDto toDto(Album album) {

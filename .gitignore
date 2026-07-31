@@ -38,3 +38,7 @@ out/
 
 ### Git Worktrees ###
 .worktrees/
+
+### Logs ###
+app.log
+app.err.log

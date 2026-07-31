@@ -2,6 +2,7 @@ package com.ledger.music_library.controller;
 
 import com.ledger.music_library.dto.AlbumDto;
 import com.ledger.music_library.service.AlbumService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class LibraryController {
     }
 
     @PostMapping
-    public ResponseEntity<AlbumDto> addAlbum(@RequestBody AlbumDto albumDto,
+    public ResponseEntity<AlbumDto> addAlbum(@Valid @RequestBody AlbumDto albumDto,
                                               Authentication authentication) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(albumService.addAlbum(albumDto, authentication));
@@ -31,7 +32,7 @@ public class LibraryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AlbumDto> updateAlbum(@PathVariable Long id,
-                                                 @RequestBody AlbumDto albumDto,
+                                                 @Valid @RequestBody AlbumDto albumDto,
                                                  Authentication authentication) {
         return ResponseEntity.ok(albumService.updateAlbum(id, albumDto, authentication));
     }
