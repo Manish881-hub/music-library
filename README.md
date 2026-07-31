@@ -121,5 +121,5 @@ Open http://localhost:3000, register, and search for albums.
 
 ## Deployment
 
-- **Backend**: Render (Web Service) — set the env vars above (DB_URL, JWT_SECRET, ALLOWED_ORIGINS), build command `./gradlew bootJar`, start command `java -jar build/libs/music-library-0.0.1-SNAPSHOT.jar`. Use a managed PostgreSQL instance.
-- **Frontend**: Vercel — framework Next.js, env `NEXT_PUBLIC_API_URL` pointing at the Render URL. Add the Vercel URL to `ALLOWED_ORIGINS` on the backend.
+- **Backend**: Render (Web Service) — set the env vars above (DB_URL, JWT_SECRET, ALLOWED_ORIGINS), build command `./gradlew bootJar`, start command `java -jar build/libs/music-library-0.0.1-SNAPSHOT.jar`. Use a managed PostgreSQL instance. For a Render PostgreSQL database, set `DB_URL` to the internal URL prefixed with `jdbc:` and also set `DB_USERNAME`/`DB_PASSWORD` from the Render database dashboard (the URL-embedded credentials are ignored when the separate env vars are set). Note: `ddl-auto=update` creates tables automatically on first boot.
+- **Frontend**: Vercel — framework Next.js, root directory `frontend`, env `NEXT_PUBLIC_API_URL` pointing at the Render URL. Add the Vercel URL to `ALLOWED_ORIGINS` on the backend.
