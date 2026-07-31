@@ -4,8 +4,9 @@ A full-stack music library app: search the iTunes catalog, save albums, rate the
 
 - **Backend**: Spring Boot 3.4.4 (Java 21, Gradle) + PostgreSQL 16 + JWT auth
 - **Frontend**: Next.js 16 (App Router, TypeScript, Tailwind CSS v4) + Chart.js
-- **Live app**: [https://resonance-music-library.vercel.app](https://resonance-music-library.vercel.app) (to be deployed)
-- **API base**: `https://music-library-backend.onrender.com/api` (to be deployed)
+- **Live app**: [https://music-library-pi.vercel.app](https://music-library-pi.vercel.app)
+- **API base**: `https://music-library-8hgj.onrender.com/api`
+- **Health check**: [https://music-library-8hgj.onrender.com/actuator/health](https://music-library-8hgj.onrender.com/actuator/health)
 
 ---
 
@@ -121,5 +122,5 @@ Open http://localhost:3000, register, and search for albums.
 
 ## Deployment
 
-- **Backend**: Render (Web Service) — set the env vars above (DB_URL, JWT_SECRET, ALLOWED_ORIGINS), build command `./gradlew bootJar`, start command `java -jar build/libs/music-library-0.0.1-SNAPSHOT.jar`. Use a managed PostgreSQL instance. For a Render PostgreSQL database, set `DB_URL` to the internal URL prefixed with `jdbc:` and also set `DB_USERNAME`/`DB_PASSWORD` from the Render database dashboard (the URL-embedded credentials are ignored when the separate env vars are set). Note: `ddl-auto=update` creates tables automatically on first boot.
+- **Backend**: Render (Web Service, Docker) — set the env vars above (DB_URL with `jdbc:` prefix and **without** credentials, DB_USERNAME, DB_PASSWORD, JWT_SECRET, ALLOWED_ORIGINS). Keep credentials out of `DB_URL`: the PostgreSQL JDBC driver mis-parses `user:pass@host` in the URL. A committed Dockerfile (`eclipse-temurin:21-jdk` → `21-jre`, port 8080) is required because Render has no Java runtime. `ddl-auto=update` creates tables automatically on first boot.
 - **Frontend**: Vercel — framework Next.js, root directory `frontend`, env `NEXT_PUBLIC_API_URL` pointing at the Render URL. Add the Vercel URL to `ALLOWED_ORIGINS` on the backend.
